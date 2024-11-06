@@ -3,6 +3,7 @@ import sqlite3
 
 app = Flask(__name__)
 
+
 # Database setup
 def init_db():
     conn = sqlite3.connect('database.db')
@@ -18,10 +19,10 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 # Initialize the database
 init_db()
 
-# API Endpoints
 
 @app.route('/bookmarks', methods=['POST'])
 def add_bookmark():
@@ -29,14 +30,19 @@ def add_bookmark():
     title = data['title']
     url = data['url']
     category = data['category']
-    
+
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    c.execute("INSERT INTO bookmarks (title, url, category) VALUES (?, ?, ?)", (title, url, category))
+    query = """
+    INSERT INTO bookmarks (title, url, category)
+    VALUES (?, ?, ?)
+    """
+    c.execute(query, (title, url, category))
     conn.commit()
     conn.close()
-    
+
     return jsonify({"message": "Bookmark added!"}), 201
+
 
 @app.route('/bookmarks', methods=['GET'])
 def get_bookmarks():
@@ -45,8 +51,9 @@ def get_bookmarks():
     c.execute("SELECT * FROM bookmarks")
     bookmarks = c.fetchall()
     conn.close()
-    
+
     return jsonify(bookmarks)
+
 
 @app.route('/bookmarks/<int:id>', methods=['DELETE'])
 def delete_bookmark(id):
@@ -55,9 +62,9 @@ def delete_bookmark(id):
     c.execute("DELETE FROM bookmarks WHERE id = ?", (id,))
     conn.commit()
     conn.close()
-    
+
     return jsonify({"message": "Bookmark deleted!"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
